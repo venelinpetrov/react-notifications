@@ -1,32 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { EventBus, DataService } from '../../services';
 import './DataFetcher.css';
 
-const testData = [{ id: 1, text: 'item1' }, { id: 2, text: 'item2' }];
-
-const DataService = {
-    fetch: () => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(testData);
-            }, 1000);
-        }, () => {});
-    }
-};
-
+let n = 0;
 export const DataFetcher = () => {
-    const [data, setData] = useState([{ id: 0, text: 'item0' }]);
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState([]);
+
     const fetchData = () => {
-        DataService.fetch().then((newData) => setData([...data, ...newData]));
+        setLoading(true);
+        DataService.fetch().then((newData) => {
+            setData(newData);
+            setLoading(false);
+            EventBus.trigger('notification', { text: `notification ${n+=1}`});
+        });
     };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     return (
         <div className="data-fetcher">
-            <button onClick={fetchData}>Fetch data</button>
-            <ul>
-                {
-                    data.map(item => <li key={item.id}>{item.text}</li>)
-                }
-            </ul>
+            {loading ? (
+                <div>loading...</div>
+            ) : (
+                <>
+                    <button onClick={fetchData}>Fetch data</button>
+                    <ul>
+                        {
+                            data.map(item => <li key={item.id}>{item.text}</li>)
+                        }
+                    </ul>
+                </>
+            )}
         </div>
     );
 };
