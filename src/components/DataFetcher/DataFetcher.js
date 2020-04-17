@@ -3,16 +3,22 @@ import { EventBus, DataService } from '../../services';
 import './DataFetcher.css';
 
 let n = 0;
-export const DataFetcher = () => {
+
+const Injector = (Component, dependencies = []) => () => {
+    console.log(dependencies)
+    return <Component injector={dependencies} />;
+};
+
+const Pure = (props) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
-
+    console.log(props)
     const fetchData = () => {
         setLoading(true);
-        DataService.fetch().then((newData) => {
+        DataService.fetch().then(newData => {
             setData(newData);
             setLoading(false);
-            EventBus.trigger('notification', { text: `notification ${n+=1}`});
+            EventBus.trigger('notification', { text: `notification ${n += 1}`});
         });
     };
 
@@ -37,3 +43,7 @@ export const DataFetcher = () => {
         </div>
     );
 };
+
+const DataFetcher = Injector(Pure, [DataService]);
+
+export { DataFetcher };
