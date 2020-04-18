@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { EventBus, DataService } from '../../services';
+import React, { useState, useEffect, useContext } from 'react';
+import { EventBus, ServiceInjector } from '../../services';
 import './DataFetcher.css';
 
 let n = 0;
 
-const Injector = (Component, dependencies = []) => () => {
-    console.log(dependencies)
-    return <Component injector={dependencies} />;
-};
-
-const Pure = (props) => {
+export const DataFetcher = (props) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
+    const { DataService } = useContext(ServiceInjector);
     console.log(props)
     const fetchData = () => {
         setLoading(true);
@@ -43,7 +39,3 @@ const Pure = (props) => {
         </div>
     );
 };
-
-const DataFetcher = Injector(Pure, [DataService]);
-
-export { DataFetcher };
