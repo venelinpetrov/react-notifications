@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { EventBus, DataService } from '../../services';
+import { EventBus, DataService, withInjector } from '../../services';
 import './DataFetcher.css';
 
 let n = 0;
 
-const Injector = (Component, dependencies = []) => () => {
-    console.log(dependencies)
-    return <Component injector={dependencies} />;
-};
 
 const Pure = (props) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
-    console.log(props)
+    console.log(props.someProp)
     const fetchData = () => {
         setLoading(true);
-        DataService.fetch().then(newData => {
+        props.injector.get(DataService).fetch().then(newData => {
             setData(newData);
             setLoading(false);
             EventBus.trigger('notification', { text: `notification ${n += 1}`});
@@ -29,7 +25,7 @@ const Pure = (props) => {
     return (
         <div className="data-fetcher">
             {loading ? (
-                <div>loading...</div>
+                <div className="loading">loading...</div>
             ) : (
                 <>
                     <button onClick={fetchData}>Fetch data</button>
@@ -44,6 +40,6 @@ const Pure = (props) => {
     );
 };
 
-const DataFetcher = Injector(Pure, [DataService]);
+const DataFetcher = withInjector(Pure, [DataService]);
 
 export { DataFetcher };
