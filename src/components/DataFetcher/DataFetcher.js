@@ -5,16 +5,17 @@ import './DataFetcher.css';
 let n = 0;
 
 
-const Pure = (props) => {
+const DataFetcherComponent = ({ injector }) => {
+    const dataService = injector.get(DataService);
+    const eventBus = injector.get(EventBus);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
-    console.log(props.someProp)
     const fetchData = () => {
         setLoading(true);
-        props.injector.get(DataService).fetch().then(newData => {
+        dataService.fetch().then(newData => {
             setData(newData);
             setLoading(false);
-            EventBus.trigger('notification', { text: `notification ${n += 1}`});
+            eventBus.trigger('notification', { text: `notification ${n += 1}`});
         });
     };
 
@@ -40,6 +41,6 @@ const Pure = (props) => {
     );
 };
 
-const DataFetcher = withInjector(Pure, [DataService]);
+const DataFetcher = withInjector(DataFetcherComponent, [DataService, EventBus]);
 
 export { DataFetcher };

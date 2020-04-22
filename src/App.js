@@ -5,7 +5,7 @@ import { Notification } from './components/Notification/Notification';
 function App() {
   return (
     <div className="app">
-      <DataFetcher someProp={43}/>
+      <DataFetcher />
       <Notification />
     </div>
   );

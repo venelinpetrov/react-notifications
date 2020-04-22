@@ -1,68 +1,57 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Proposal
 
-## Available Scripts
+This sample project showcases 3 implementations
 
-In the project directory, you can run:
+1. Notifications component
+2. Event bus
+3. Dependency injections (DI)
 
-### `npm start`
+**NOTE:** APIs and naming are subject of change, but staying conformal with commonly used terminology is advisable.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## About the example app
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+This is a simple app that uses `DataFetcher` component to fetch some mock data and a `Notification` component that pops up when data is displayed to the user. `DataService` is the mock data service.
 
-### `npm test`
+## Notifications component
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This is an example of "singleton" component that is used/created only once (in the app root) and other components make calls to interact with it. These calls are mediated by a service, see below. Other examples of such components are e.g. Dialog windows, Confirm popups, Loggers, etc.
 
-### `npm run build`
+## Event bus
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Some sort of inter-component comunication is needed. This implementation uses "Event bus" service. Another common option is to use streams and observables. This solves the "props drilling" problem.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+**Usage:**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Subscribe to an event:
 
-### `npm run eject`
+```jsx
+// Subscribe to 'notification' event. 'cb' is a callback function to execute when the event occurs
+eventBus.subscribe('notification', cb);
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Fire event:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```jsx
+// Payload is an arbitrary optional object to pass as an event argument
+eventBus.trigger('notification', payload);
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Dependency injection
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+DI allows to decouple creation from instantiation. This removes the hard dependencies from components making them more reusable and actually testable.
 
-## Learn More
+See example tests in `DataFetcher.test.js`. As can be seen, it's fairly straightforward to provide mock objects for your dependencies through parameters.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**Usage:**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```jsx
+// The first argument is the component to which you provide the dependency.
+// The second argument is a list of dependencies, which are the actual tokens you import
+const Notification = withInjector(Component, [EventBus]);
+```
 
-### Code Splitting
+After doing so you will have the `injector` available inside `Component`
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```jsx
+const eventBus = injector.get(EventBus);
+```

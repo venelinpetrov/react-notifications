@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { EventBus } from '../../services/EventBus';
+import { EventBus, withInjector } from '../../services';
 
-export const Notification = () => {
+const NotificationComponent = ({ injector }) => {
+    const eventBus = injector.get(EventBus);
     const [notifications, setNotifications] = useState([]);
     const cb = notification => {
         setNotifications(notifications => notifications.concat(notification));
     };
-    const handleClose = (notification) => {
+    const handleClose = notification => {
         setNotifications(notifications =>
             notifications.filter(n => notification !== n)
         );
-    }
+    };
 
     useEffect(() => {
-        EventBus.subscribe('notification', cb);
+        eventBus.subscribe('notification', cb);
 
-        return EventBus.unsubscribe.bind(null, 'notification', cb);
+        return eventBus.unsubscribe.bind(null, 'notification', cb);
     }, []);
+
     return (
         <div>
             {notifications.map((notification, i) => {
@@ -35,3 +37,7 @@ const SingleNotification = ({ text, timeout=5000, onClose }) => {
     }, timeout);
     return <div>{text}</div>;
 };
+
+const Notification = withInjector(NotificationComponent, [EventBus]);
+
+export { Notification };
